@@ -40,14 +40,3 @@
 - **Web/PC**: [bookri.app](#) (Replace with actual link)
 
 ---
-
-## 🏗️ Getting Started
-
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) (v16+ recommended)
-- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
-- (For Android build) [Android Studio](https://developer.android.com/studio) & [Capacitor-CLI](https://capacitorjs.com/docs/cli)
-
-### Installation
-
