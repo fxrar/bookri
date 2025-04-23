@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookri - Book Reading App</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        
+        .nav-item {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-item.active {
+            color: #3B82F6;
+        }
+        
+        .indicator-line {
+            width: 0;
+            height: 3px;
+            border-radius: 999px;
+            background-color: #3B82F6;
+            margin: 4px 0;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .nav-item.active .indicator-line {
+            width: 20px;
+        }
+        
+        .icon-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+        }
+        
+        .icon-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(59, 130, 246, 0.1);
+            border-radius: 12px;
+            transform: scale(0);
+            opacity: 0;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+        }
+        
+        .nav-item.active .icon-background {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        .nav-text {
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 2px;
+            opacity: 0.8;
+            transform: translateY(0);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        
+        .nav-item.active .nav-text {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .progress-bar {
+            height: 6px;
+            border-radius: 3px;
+            background-color: #E5E7EB;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            background-color: #3B82F6;
+        }
+        
+        /* Animation for the icon bounce */
+        @keyframes iconBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .nav-item.active i {
+            animation: iconBounce 0.5s ease;
+        }
+        
+        .tab-button {
+            transition: all 0.2s ease;
+        }
+        
+        .tab-button.active {
+            background-color: #3B82F6;
+            color: white;
+        }
+        
+        .tab-button:hover:not(.active) {
+            background-color: #EFF6FF;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+        }
+        
+        .chart-bar {
+            position: absolute;
+            bottom: 0;
+            width: 8%;
+            background-color: #3B82F6;
+            border-radius: 4px 4px 0 0;
+            transition: height 1s ease;
+        }
+        
+        .chart-label {
+            position: absolute;
+            bottom: -25px;
+            width: 8%;
+            text-align: center;
+            font-size: 10px;
+            color: #6B7280;
+        }
+        
+        .achievement-badge {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #EFF6FF;
+        }
+        
+        .achievement-badge.locked {
+            background-color: #F3F4F6;
+            opacity: 0.7;
+        }
+        
+        .achievement-badge i {
+            font-size: 24px;
+            color: #3B82F6;
+        }
+        
+        .achievement-badge.locked i {
+            color: #9CA3AF;
+        }
+        
+        .progress-circle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .progress-circle-track {
+            fill: none;
+            stroke: #E5E7EB;
+            stroke-width: 4;
+        }
+        
+        .progress-circle-fill {
+            fill: none;
+            stroke: #3B82F6;
+            stroke-width: 4;
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: center;
+            transition: stroke-dashoffset 1s ease;
+        }
+        
+        .profile-header {
+            background: linear-gradient(to right, #EBF5FF, #DBEAFE);
+            border-radius: 16px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen">
+    <!-- Main Content Area -->
+    <div class="h-full pb-20 overflow-auto">
+        <!-- Profile Tab Content -->
+        <div id="profile-tab" class="px-4 pt-6">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Profile</h1>
+                    <p class="text-gray-600 text-sm">Monday, April 20</p>
+                </div>
+                <button class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                    <i class="fas fa-cog text-gray-500"></i>
+                </button>
+            </div>
+            
+            <!-- Profile Header -->
+            <div class="profile-header p-4 mb-6">
+                <div class="flex items-center">
+                    <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mr-4">
+                        <span class="text-white font-bold text-xl">JD</span>
+                    </div>
+                    <div>
+                        <h2 class="font-semibold text-gray-800 text-lg">John Doe</h2>
+                        <p class="text-gray-600 text-sm">Joined January 2025</p>
+                        <div class="flex items-center mt-1">
+                            <i class="fas fa-book-open text-blue-500 mr-1 text-sm"></i>
+                            <span class="text-gray-600 text-sm">Avid Reader</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-2 mt-4">
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-gray-800">24</p>
+                        <p class="text-xs text-gray-600">Books</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-gray-800">12</p>
+                        <p class="text-xs text-gray-600">Completed</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-gray-800">87h</p>
+                        <p class="text-xs text-gray-600">Reading Time</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reading Insights Tabs -->
+            <div class="flex space-x-2 mb-4 overflow-x-auto py-1">
+                <button class="tab-button active whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium">
+                    Weekly
+                </button>
+                <button class="tab-button whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium text-gray-600 bg-white">
+                    Monthly
+                </button>
+                <button class="tab-button whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium text-gray-600 bg-white">
+                    Yearly
+                </button>
+                <button class="tab-button whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium text-gray-600 bg-white">
+                    All Time
+                </button>
+            </div>
+            
+            <!-- Reading Time Chart -->
+            <div class="bg-white rounded-xl p-4 mb-6">
+                <h2 class="font-semibold text-gray-800 mb-4">Reading Activity</h2>
+                
+                <div class="chart-container mb-6">
+                    <div class="chart-bar" style="left: 2%; height: 30%;"></div>
+                    <div class="chart-label" style="left: 2%;">Apr 14</div>
+                    
+                    <div class="chart-bar" style="left: 13%; height: 60%;"></div>
+                    <div class="chart-label" style="left: 13%;">Apr 15</div>
+                    
+                    <div class="chart-bar" style="left: 24%; height: 40%;"></div>
+                    <div class="chart-label" style="left: 24%;">Apr 16</div>
+                    
+                    <div class="chart-bar" style="left: 35%; height: 80%;"></div>
+                    <div class="chart-label" style="left: 35%;">Apr 17</div>
+                    
+                    <div class="chart-bar" style="left: 46%; height: 50%;"></div>
+                    <div class="chart-label" style="left: 46%;">Apr 18</div>
+                    
+                    <div class="chart-bar" style="left: 57%; height: 90%;"></div>
+                    <div class="chart-label" style="left: 57%;">Apr 19</div>
+                    
+                    <div class="chart-bar" style="left: 68%; height: 20%;"></div>
+                    <div class="chart-label" style="left: 68%;">Apr 20</div>
+                    
+                    <div class="chart-bar bg-gray-200" style="left: 79%; height: 0%;"></div>
+                    <div class="chart-label" style="left: 79%;">Apr 21</div>
+                    
+                    <div class="chart-bar bg-gray-200" style="left: 90%; height: 0%;"></div>
+                    <div class="chart-label" style="left: 90%;">Apr 22</div>
+                </div>
+                
+                <div class="flex justify-between text-sm">
+                    <div>
+                        <p class="text-gray-500">Time this week</p>
+                        <p class="font-semibold text-gray-800">5h 45m</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500">Daily average</p>
+                        <p class="font-semibold text-gray-800">49m</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500">Best day</p>
+                        <p class="font-semibold text-gray-800">Saturday</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reading Habits -->
+            <div class="bg-white rounded-xl p-4 mb-6">
+                <h2 class="font-semibold text-gray-800 mb-4">Reading Habits</h2>
+                
+                <div class="space-y-4">
+                    <!-- Preferred Time -->
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <p class="text-sm text-gray-600">Preferred Time</p>
+                            <p class="text-sm font-medium text-gray-800">Evening</p>
+                        </div>
+                        <div class="grid grid-cols-4 gap-1">
+                            <div class="h-2 bg-gray-200 rounded-full">
+                                <div class="h-full bg-blue-500 rounded-full" style="width: 20%;"></div>
+                            </div>
+                            <div class="h-2 bg-gray-200 rounded-full">
+                                <div class="h-full bg-blue-500 rounded-full" style="width: 15%;"></div>
+                            </div>
+                            <div class="h-2 bg-gray-200 rounded-full">
+                                <div class="h-full bg-blue-500 rounded-full" style="width: 25%;"></div>
+                            </div>
+                            <div class="h-2 bg-gray-200 rounded-full">
+                                <div class="h-full bg-blue-500 rounded-full" style="width: 80%;"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>Morning</span>
+                            <span>Afternoon</span>
+                            <span>Evening</span>
+                            <span>Night</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Reading Speed -->
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <p class="text-sm text-gray-600">Reading Speed</p>
+                            <p class="text-sm font-medium text-gray-800">275 wpm</p>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 65%;"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>Slow</span>
+                            <span>Average</span>
+                            <span>Fast</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Weekly Consistency -->
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <p class="text-sm text-gray-600">Weekly Consistency</p>
+                            <p class="text-sm font-medium text-gray-800">5/7 days</p>
+                        </div>
+                        <div class="flex justify-between">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-blue-500 text-white">
+                                <i class="fas fa-check text-xs"></i>
+                            </div>
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-blue-500 text-white">
+                                <i class="fas fa-check text-xs"></i>
+                            </div>
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-blue-500 text-white">
+                                <i class="fas fa-check text-xs"></i>
+                            </div>
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-blue-500 text-white">
+                                <i class="fas fa-check text-xs"></i>
+                            </div>
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-blue-500 text-white">
+                                <i class="fas fa-check text-xs"></i>
+                            </div>
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 text-gray-400">
+                                <i class="fas fa-times text-xs"></i>
+                            </div>
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 text-gray-400">
+                                <i class="fas fa-times text-xs"></i>
+                            </div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>M</span>
+                            <span>T</span>
+                            <span>W</span>
+                            <span>T</span>
+                            <span>F</span>
+                            <span>S</span>
+                            <span>S</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reading Genres -->
+            <div class="bg-white rounded-xl p-4 mb-6">
+                <h2 class="font-semibold text-gray-800 mb-4">Favorite Genres</h2>
+                
+                <div class="space-y-3">
+                    <!-- Self-Improvement -->
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <p class="text-sm text-gray-600">Self-Improvement</p>
+                            <p class="text-sm font-medium text-gray-800">45%</p>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 45%;"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Business -->
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <p class="text-sm text-gray-600">Business</p>
+                            <p class="text-sm font-medium text-gray-800">25%</p>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 25%;"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Psychology -->
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <p class="text-sm text-gray-600">Psychology</p>
+                            <p class="text-sm font-medium text-gray-800">15%</p>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 15%;"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Science -->
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <p class="text-sm text-gray-600">Science</p>
+                            <p class="text-sm font-medium text-gray-800">10%</p>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 10%;"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Fiction -->
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <p class="text-sm text-gray-600">Fiction</p>
+                            <p class="text-sm font-medium text-gray-800">5%</p>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 5%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Achievements -->
+            <h2 class="font-semibold text-gray-800 mb-4">Achievements</h2>
+            <div class="bg-white rounded-xl p-4 mb-6">
+                <div class="grid grid-cols-3 gap-4">
+                    <!-- Achievement 1 - Bookworm -->
+                    <div class="flex flex-col items-center">
+                        <div class="achievement-badge mb-2">
+                            <svg class="progress-circle" viewBox="0 0 36 36">
+                                <circle class="progress-circle-track" cx="18" cy="18" r="16"></circle>
+                                <circle class="progress-circle-fill" cx="18" cy="18" r="16" stroke-dasharray="100" stroke-dashoffset="0"></circle>
+                            </svg>
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <p class="text-xs font-medium text-gray-800">Bookworm</p>
+                        <p class="text-xs text-gray-500">10 books</p>
+                    </div>
+                    
+                    <!-- Achievement 2 - Consistent -->
+                    <div class="flex flex-col items-center">
+                        <div class="achievement-badge mb-2">
+                            <svg class="progress-circle" viewBox="0 0 36 36">
+                                <circle class="progress-circle-track" cx="18" cy="18" r="16"></circle>
+                                <circle class="progress-circle-fill" cx="18" cy="18" r="16" stroke-dasharray="100" stroke-dashoffset="50"></circle>
+                            </svg>
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <p class="text-xs font-medium text-gray-800">Consistent</p>
+                        <p class="text-xs text-gray-500">7/14 days</p>
+                    </div>
+                    
+                    <!-- Achievement 3 - Night Owl -->
+                    <div class="flex flex-col items-center">
+                        <div class="achievement-badge mb-2">
+                            <svg class="progress-circle" viewBox="0 0 36 36">
+                                <circle class="progress-circle-track" cx="18" cy="18" r="16"></circle>
+                                <circle class="progress-circle-fill" cx="18" cy="18" r="16" stroke-dasharray="100" stroke-dashoffset="0"></circle>
+                            </svg>
+                            <i class="fas fa-moon"></i>
+                        </div>
+                        <p class="text-xs font-medium text-gray-800">Night Owl</p>
+                        <p class="text-xs text-gray-500">20 nights</p>
+                    </div>
+                    
+                    <!-- Achievement 4 - Speed Reader -->
+                    <div class="flex flex-col items-center">
+                        <div class="achievement-badge locked mb-2">
+                            <svg class="progress-circle" viewBox="0 0 36 36">
+                                <circle class="progress-circle-track" cx="18" cy="18" r="16"></circle>
+                                <circle class="progress-circle-fill" cx="18" cy="18" r="16" stroke-dasharray="100" stroke-dashoffset="70"></circle>
+                            </svg>
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <p class="text-xs font-medium text-gray-800">Speed Reader</p>
+                        <p class="text-xs text-gray-500">3/10 books</p>
+                    </div>
+                    
+                    <!-- Achievement 5 - Genre Explorer -->
+                    <div class="flex flex-col items-center">
+                        <div class="achievement-badge mb-2">
+                            <svg class="progress-circle" viewBox="0 0 36 36">
+                                <circle class="progress-circle-track" cx="18" cy="18" r="16"></circle>
+                                <circle class="progress-circle-fill" cx="18" cy="18" r="16" stroke-dasharray="100" stroke-dashoffset="20"></circle>
+                            </svg>
+                            <i class="fas fa-compass"></i>
+                        </div>
+                        <p class="text-xs font-medium text-gray-800">Explorer</p>
+                        <p class="text-xs text-gray-500">4/5 genres</p>
+                    </div>
+                    
+                    <!-- Achievement 6 - Milestone -->
+                    <div class="flex flex-col items-center">
+                        <div class="achievement-badge locked mb-2">
+                            <svg class="progress-circle" viewBox="0 0 36 36">
+                                <circle class="progress-circle-track" cx="18" cy="18" r="16"></circle>
+                                <circle class="progress-circle-fill" cx="18" cy="18" r="16" stroke-dasharray="100" stroke-dashoffset="90"></circle>
+                            </svg>
+                            <i class="fas fa-award"></i>
+                        </div>
+                        <p class="text-xs font-medium text-gray-800">Milestone</p>
+                        <p class="text-xs text-gray-500">10/100 hours</p>
+                    </div>
+                </div>
+                
+                <div class="mt-4 pt-3 border-t border-gray-100 flex justify-center">
+                    <button class="text-blue-500 text-sm font-medium">
+                        View All Achievements
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Account Settings Button -->
+            <div class="flex justify-center mb-6">
+                <button class="bg-white border border-gray-200 text-gray-600 text-sm py-2 px-4 rounded-lg flex items-center">
+                    <i class="fas fa-cog mr-2"></i>
+                    Account Settings
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 w-full bg-white border-t border-gray-200">
+        <div class="flex justify-around py-3">
+            <a href="#" class="nav-item text-gray-500" data-tab="home-tab">
+                <div class="icon-container">
+                    <div class="icon-background"></div>
+                    <i class="fas fa-home text-xl"></i>
+                </div>
+                <div class="indicator-line"></div>
+                <span class="nav-text">Home</span>
+            </a>
+            <a href="#" class="nav-item text-gray-500" data-tab="books-tab">
+                <div class="icon-container">
+                    <div class="icon-background"></div>
+                    <i class="fas fa-book text-xl"></i>
+                </div>
+                <div class="indicator-line"></div>
+                <span class="nav-text">Books</span>
+            </a>
+            <a href="#" class="nav-item text-gray-500" data-tab="goal-tab">
+                <div class="icon-container">
+                    <div class="icon-background"></div>
+                    <i class="fas fa-bullseye text-xl"></i>
+                </div>
+                <div class="indicator-line"></div>
+                <span class="nav-text">Goal</span>
+            </a>
+            <a href="#" class="nav-item active text-gray-500" data-tab="profile-tab">
+                <div class="icon-container">
+                    <div class="icon-background"></div>
+                    <i class="fas fa-chart-line text-xl"></i>
+                </div>
+                <div class="indicator-line"></div>
+                <span class="nav-text">Profile</span>
+            </a>
+            <a href="#" class="nav-item text-gray-500" data-tab="read-tab">
+                <div class="icon-container">
+                    <div class="icon-background"></div>
+                    <i class="fas fa-book-reader text-xl"></i>
+                </div>
+                <div class="indicator-line"></div>
+                <span class="nav-text">Read</span>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        // JavaScript to handle tab switching
+        const navItems = document.querySelectorAll('.nav-item');
+        
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                if (item.classList.contains('active')) return;
+                
+                // Remove active class from all items
+                navItems.forEach(navItem => {
+                    navItem.classList.remove('active');
+                });
+                
+                // Add active class to clicked item
+                item.classList.add('active');
+            });
+        });
+        
+        // Handle insight tabs
+        const tabButtons = document.querySelectorAll('.tab-button');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.classList.add('bg-white', 'text-gray-600');
+                });
+                
+                // Add active class to clicked button
+                button.classList.add('active');
+                button.classList.remove('bg-white', 'text-gray-600');
+            });
+        });
+        
+        // Animate chart bars on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const chartBars = document.querySelectorAll('.chart-bar');
+            
+            // Initially set all bars to height 0
+            chartBars.forEach(bar => {
+                const originalHeight = bar.style.height;
+                bar.style.height = '0%';
+                
+                // Animate to actual height after a small delay
+                setTimeout(() => {
+                    bar.style.height = originalHeight;
+                }, 300);
+            });
+        });
+    </script>
+</body>
+</html>

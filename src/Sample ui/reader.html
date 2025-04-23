@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookri - Book Reading App</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        
+        .reader-content {
+            font-family: 'Georgia', serif;
+            line-height: 1.7;
+        }
+        
+        .reader-content p {
+            margin-bottom: 1.5em;
+        }
+        
+        .tool-button {
+            transition: all 0.2s ease;
+        }
+        
+        .tool-button:hover {
+            background-color: #EFF6FF;
+        }
+        
+        .tool-button.active {
+            background-color: #3B82F6;
+            color: white;
+        }
+        
+        .chapter-selector {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            z-index: 50;
+        }
+        
+        .chapter-selector.open {
+            transform: translateY(0);
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+            z-index: 40;
+        }
+        
+        .overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .highlight {
+            background-color: rgba(253, 230, 138, 0.5);
+            border-radius: 2px;
+            padding: 0 2px;
+        }
+        
+        .note-indicator {
+            position: relative;
+            display: inline;
+        }
+        
+        .note-indicator::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #3B82F6;
+            border-radius: 1px;
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background-color: #E5E7EB;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: #3B82F6;
+        }
+        
+        /* Font size controls */
+        .font-size-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .font-size-btn {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: #F3F4F6;
+            border: none;
+            cursor: pointer;
+        }
+        
+        /* Theme toggle */
+        .theme-toggle {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            border-radius: 12px;
+            background-color: #E5E7EB;
+            cursor: pointer;
+        }
+        
+        .theme-toggle-circle {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: white;
+            transition: transform 0.3s ease;
+        }
+        
+        .theme-toggle.dark .theme-toggle-circle {
+            transform: translateX(24px);
+        }
+        
+        .theme-toggle.dark {
+            background-color: #4B5563;
+        }
+        
+        /* Settings panel */
+        .settings-panel {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            z-index: 50;
+        }
+        
+        .settings-panel.open {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen flex flex-col">
+    <!-- Top Navigation -->
+    <header class="bg-white border-b border-gray-200 px-4 py-3 flex justify-between items-center">
+        <button class="p-2 rounded-full" id="back-button">
+            <i class="fas fa-arrow-left text-gray-600"></i>
+        </button>
+        <div class="text-center">
+            <h1 class="font-medium text-gray-800 text-sm">Atomic Habits</h1>
+            <p class="text-gray-500 text-xs">Chapter 4: The Four Laws of Behavior Change</p>
+        </div>
+        <button class="p-2 rounded-full" id="more-button">
+            <i class="fas fa-ellipsis-v text-gray-600"></i>
+        </button>
+    </header>
+    
+    <!-- Reading Progress -->
+    <div class="progress-bar">
+        <div class="progress-fill" style="width: 45%;"></div>
+    </div>
+    
+    <!-- Main Reading Area -->
+    <div class="flex-1 overflow-auto px-5 py-6 reader-content" id="reading-area">
+        <h2 class="text-xl font-bold mb-4 text-gray-800">The Four Laws of Behavior Change</h2>
+        
+        <p>In the early 1800s, the British Navy faced a crisis. Their sailors were dying from scurvy, a disease caused by vitamin C deficiency. The solution was simple: citrus fruits. But implementing this solution was challenging. How could they get sailors to eat citrus fruits regularly?</p>
+        
+        <p>The Navy's solution was to integrate citrus fruits into the daily routine. They paired it with the daily rum ration—a habit sailors already enjoyed. By connecting a new behavior (eating citrus) with an established habit (drinking rum), they successfully changed behavior and saved countless lives.</p>
+        
+        <p>This historical example illustrates a powerful concept: <span class="highlight">habits are not formed through sheer willpower, but through carefully designed systems</span>. Understanding the mechanics of habit formation can help us create better systems for positive change.</p>
+        
+        <p>After decades of research, I've discovered that successful habit change follows four laws. These laws provide a framework for creating good habits and breaking bad ones. Let's explore each one:</p>
+        
+        <h3 class="text-lg font-semibold mt-6 mb-3 text-gray-800">1. Make It Obvious</h3>
+        
+        <p>Our environment shapes our behavior more than we realize. <span class="note-indicator">We don't decide what to notice; our brains automatically filter information based on what stands out.</span> To create a new habit, make the cues obvious. To break a bad habit, make the cues invisible.</p>
+        
+        <p>For example, if you want to read more, place books in visible locations throughout your home. If you want to use your phone less, keep it in another room while working.</p>
+        
+        <h3 class="text-lg font-semibold mt-6 mb-3 text-gray-800">2. Make It Attractive</h3>
+        
+        <p>We're more likely to form habits around behaviors that are attractive to us. The more attractive an opportunity is, the more likely it is to become habit-forming.</p>
+        
+        <p>You can make habits more attractive by connecting them with positive experiences. For instance, only watch your favorite TV show while exercising. This "temptation bundling" links an action you want to do with an action you need to do.</p>
+        
+        <h3 class="text-lg font-semibold mt-6 mb-3 text-gray-800">3. Make It Easy</h3>
+        
+        <p>Human behavior follows the Law of Least Effort. We naturally gravitate toward the option that requires the least amount of work. To build a new habit, reduce friction: make the action easy to do. To break a bad habit, increase friction: make the action difficult.</p>
+        
+        <p><span class="highlight">The most effective way to make a habit easier is to practice it. With each repetition, the neural pathways that encode the habit become stronger.</span> Start with a habit that takes less than two minutes to do. This "Two-Minute Rule" makes habits feel manageable.</p>
+        
+        <h3 class="text-lg font-semibold mt-6 mb-3 text-gray-800">4. Make It Satisfying</h3>
+        
+        <p>We're more likely to repeat a behavior when the experience is satisfying. The human brain has evolved to prioritize immediate rewards over delayed rewards.</p>
+        
+        <p>The most effective way to make a habit satisfying is to add an immediate reward. For example, after exercising, take a refreshing shower or enjoy a healthy smoothie. Over time, the identity itself becomes the reward: "I'm the type of person who exercises regularly."</p>
+        
+        <p>When combined, these four laws create a powerful framework for changing your habits. Make it obvious, attractive, easy, and satisfying, and you'll be well on your way to building the habits you want in life.</p>
+    </div>
+    
+    <!-- Bottom Toolbar -->
+    <div class="bg-white border-t border-gray-200 px-4 py-3 flex justify-between items-center">
+        <div class="flex space-x-1">
+            <button class="tool-button p-2 rounded-lg" id="chapters-button">
+                <i class="fas fa-list text-gray-600"></i>
+            </button>
+            <button class="tool-button p-2 rounded-lg" id="bookmark-button">
+                <i class="far fa-bookmark text-gray-600"></i>
+            </button>
+            <button class="tool-button p-2 rounded-lg" id="highlight-button">
+                <i class="fas fa-highlighter text-gray-600"></i>
+            </button>
+        </div>
+        
+        <div class="flex items-center">
+            <span class="text-xs text-gray-500 mr-2">78/174</span>
+            <button class="tool-button p-2 rounded-lg" id="settings-button">
+                <i class="fas fa-sliders-h text-gray-600"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Chapter Selector (Hidden by default) -->
+    <div class="chapter-selector bg-white rounded-t-xl p-4" id="chapter-selector">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="font-semibold text-gray-800">Chapters</h2>
+            <button class="p-2" id="close-chapters">
+                <i class="fas fa-times text-gray-600"></i>
+            </button>
+        </div>
+        
+        <div class="overflow-auto max-h-80">
+            <div class="mb-4">
+                <h3 class="font-medium text-gray-800 mb-2">Table of Contents</h3>
+                <ul class="space-y-3">
+                    <li class="p-2 border-l-2 border-transparent">
+                        <span class="text-sm text-gray-600">Introduction</span>
+                    </li>
+                    <li class="p-2 border-l-2 border-transparent">
+                        <span class="text-sm text-gray-600">Chapter 1: The Surprising Power of Atomic Habits</span>
+                    </li>
+                    <li class="p-2 border-l-2 border-transparent">
+                        <span class="text-sm text-gray-600">Chapter 2: How Your Habits Shape Your Identity</span>
+                    </li>
+                    <li class="p-2 border-l-2 border-transparent">
+                        <span class="text-sm text-gray-600">Chapter 3: How to Build Better Habits</span>
+                    </li>
+                    <li class="p-2 border-l-2 border-blue-500 bg-blue-50">
+                        <span class="text-sm text-blue-600 font-medium">Chapter 4: The Four Laws of Behavior Change</span>
+                    </li>
+                    <li class="p-2 border-l-2 border-transparent">
+                        <span class="text-sm text-gray-600">Chapter 5: The 1st Law - Make It Obvious</span>
+                    </li>
+                    <li class="p-2 border-l-2 border-transparent">
+                        <span class="text-sm text-gray-600">Chapter 6: The 2nd Law - Make It Attractive</span>
+                    </li>
+                    <li class="p-2 border-l-2 border-transparent">
+                        <span class="text-sm text-gray-600">Chapter 7: The 3rd Law - Make It Easy</span>
+                    </li>
+                    <li class="p-2 border-l-2 border-transparent">
+                        <span class="text-sm text-gray-600">Chapter 8: The 4th Law - Make It Satisfying</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div>
+                <h3 class="font-medium text-gray-800 mb-2">Your Bookmarks</h3>
+                <div class="space-y-3">
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-600 mb-1">"habits are not formed through sheer willpower, but through carefully designed systems"</p>
+                        <p class="text-xs text-gray-400">Chapter 4 - Page 78</p>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-600 mb-1">"The most effective way to make a habit easier is to practice it. With each repetition..."</p>
+                        <p class="text-xs text-gray-400">Chapter 4 - Page 82</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings Panel (Hidden by default) -->
+    <div class="settings-panel bg-white rounded-t-xl p-4" id="settings-panel">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="font-semibold text-gray-800">Reading Settings</h2>
+            <button class="p-2" id="close-settings">
+                <i class="fas fa-times text-gray-600"></i>
+            </button>
+        </div>
+        
+        <div class="space-y-5">
+            <!-- Font Size -->
+            <div>
+                <h3 class="font-medium text-gray-800 mb-2">Font Size</h3>
+                <div class="font-size-control">
+                    <button class="font-size-btn" id="decrease-font">
+                        <i class="fas fa-minus text-gray-600 text-xs"></i>
+                    </button>
+                    <div class="flex-1 h-1 bg-gray-200 rounded-full">
+                        <div class="h-full bg-blue-500 rounded-full" style="width: 50%;"></div>
+                    </div>
+                    <button class="font-size-btn" id="increase-font">
+                        <i class="fas fa-plus text-gray-600 text-xs"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Line Spacing -->
+            <div>
+                <h3 class="font-medium text-gray-800 mb-2">Line Spacing</h3>
+                <div class="font-size-control">
+                    <button class="font-size-btn">
+                        <i class="fas fa-compress-alt text-gray-600 text-xs"></i>
+                    </button>
+                    <div class="flex-1 h-1 bg-gray-200 rounded-full">
+                        <div class="h-full bg-blue-500 rounded-full" style="width: 35%;"></div>
+                    </div>
+                    <button class="font-size-btn">
+                        <i class="fas fa-expand-alt text-gray-600 text-xs"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Theme -->
+            <div>
+                <h3 class="font-medium text-gray-800 mb-2">Theme</h3>
+                <div class="grid grid-cols-4 gap-3">
+                    <div class="theme-option p-3 bg-white border border-gray-200 rounded-lg flex items-center justify-center">
+                        <div class="w-5 h-5 rounded-full bg-white border border-gray-300"></div>
+                    </div>
+                    <div class="theme-option p-3 bg-gray-100 border border-blue-500 rounded-lg flex items-center justify-center">
+                        <div class="w-5 h-5 rounded-full bg-gray-100 border border-gray-300"></div>
+                    </div>
+                    <div class="theme-option p-3 bg-yellow-50 border border-gray-200 rounded-lg flex items-center justify-center">
+                        <div class="w-5 h-5 rounded-full bg-yellow-50 border border-gray-300"></div>
+                    </div>
+                    <div class="theme-option p-3 bg-gray-800 border border-gray-200 rounded-lg flex items-center justify-center">
+                        <div class="w-5 h-5 rounded-full bg-gray-800 border border-gray-700"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dark Mode -->
+            <div class="flex justify-between items-center">
+                <h3 class="font-medium text-gray-800">Dark Mode</h3>
+                <div class="theme-toggle" id="dark-mode-toggle">
+                    <div class="theme-toggle-circle"></div>
+                </div>
+            </div>
+            
+            <!-- Auto-Scroll -->
+            <div class="flex justify-between items-center">
+                <h3 class="font-medium text-gray-800">Auto-Scroll</h3>
+                <div class="theme-toggle" id="auto-scroll-toggle">
+                    <div class="theme-toggle-circle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+    
+    <script>
+        // DOM Elements
+        const chaptersButton = document.getElementById('chapters-button');
+        const settingsButton = document.getElementById('settings-button');
+        const chapterSelector = document.getElementById('chapter-selector');
+        const settingsPanel = document.getElementById('settings-panel');
+        const overlay = document.getElementById('overlay');
+        const closeChapters = document.getElementById('close-chapters');
+        const closeSettings = document.getElementById('close-settings');
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const autoScrollToggle = document.getElementById('auto-scroll-toggle');
+        const readingArea = document.getElementById('reading-area');
+        const decreaseFont = document.getElementById('decrease-font');
+        const increaseFont = document.getElementById('increase-font');
+        const backButton = document.getElementById('back-button');
+        const bookmarkButton = document.getElementById('bookmark-button');
+        const highlightButton = document.getElementById('highlight-button');
+        
+        // Initial font size
+        let fontSize = 16;
+        readingArea.style.fontSize = `${fontSize}px`;
+        
+        // Event Listeners
+        chaptersButton.addEventListener('click', () => {
+            chapterSelector.classList.add('open');
+            overlay.classList.add('open');
+            settingsPanel.classList.remove('open');
+        });
+        
+        settingsButton.addEventListener('click', () => {
+            settingsPanel.classList.add('open');
+            overlay.classList.add('open');
+            chapterSelector.classList.remove('open');
+        });
+        
+        closeChapters.addEventListener('click', () => {
+            chapterSelector.classList.remove('open');
+            overlay.classList.remove('open');
+        });
+        
+        closeSettings.addEventListener('click', () => {
+            settingsPanel.classList.remove('open');
+            overlay.classList.remove('open');
+        });
+        
+        overlay.addEventListener('click', () => {
+            chapterSelector.classList.remove('open');
+            settingsPanel.classList.remove('open');
+            overlay.classList.remove('open');
+        });
+        
+        darkModeToggle.addEventListener('click', () => {
+            darkModeToggle.classList.toggle('dark');
+            document.body.classList.toggle('bg-gray-900');
+            readingArea.classList.toggle('text-white');
+            
+            if (document.body.classList.contains('bg-gray-900')) {
+                readingArea.style.color = 'white';
+                document.querySelectorAll('h2, h3').forEach(heading => {
+                    heading.classList.remove('text-gray-800');
+                    heading.classList.add('text-white');
+                });
+            } else {
+                readingArea.style.color = '';
+                document.querySelectorAll('h2, h3').forEach(heading => {
+                    heading.classList.add('text-gray-800');
+                    heading.classList.remove('text-white');
+                });
+            }
+        });
+        
+        autoScrollToggle.addEventListener('click', () => {
+            autoScrollToggle.classList.toggle('dark');
+        });
+        
+        decreaseFont.addEventListener('click', () => {
+            if (fontSize > 12) {
+                fontSize -= 1;
+                readingArea.style.fontSize = `${fontSize}px`;
+            }
+        });
+        
+        increaseFont.addEventListener('click', () => {
+            if (fontSize < 24) {
+                fontSize += 1;
+                readingArea.style.fontSize = `${fontSize}px`;
+            }
+        });
+        
+        backButton.addEventListener('click', () => {
+            // Go back to previous page (in a real app, this would navigate back)
+            alert('Navigate back to the previous page');
+        });
+        
+        bookmarkButton.addEventListener('click', () => {
+            bookmarkButton.querySelector('i').classList.toggle('far');
+            bookmarkButton.querySelector('i').classList.toggle('fas');
+            bookmarkButton.querySelector('i').classList.toggle('text-blue-500');
+        });
+        
+        highlightButton.addEventListener('click', () => {
+            highlightButton.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

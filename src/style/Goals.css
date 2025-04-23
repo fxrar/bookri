@@ -1,0 +1,125 @@
+/* src/components/goals/Goals.css */
+
+/* Navigation styles */
+.nav-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: color 0.3s ease;
+}
+
+.nav-item.active {
+    color: #3B82F6;
+}
+
+.indicator-line {
+    width: 0;
+    height: 3px;
+    border-radius: 999px;
+    background-color: #3B82F6;
+    margin: 4px 0;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-item.active .indicator-line {
+    width: 20px;
+}
+
+.icon-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+}
+
+.icon-background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(59, 130, 246, 0.1);
+    border-radius: 12px;
+    transform: scale(0);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+
+.nav-item.active .icon-background {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.nav-text {
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 2px;
+    opacity: 0.8;
+    transform: translateY(0);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.nav-item.active .nav-text {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Progress styles */
+.progress-bar {
+    height: 6px;
+    border-radius: 3px;
+    background-color: #E5E7EB;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    background-color: #3B82F6;
+}
+
+.time-selector {
+    transition: all 0.2s ease;
+}
+
+.time-selector.active {
+    background-color: #3B82F6;
+    color: white;
+}
+
+.time-selector:hover:not(.active):not(:disabled) {
+    background-color: #EFF6FF;
+}
+
+.circle-progress {
+    position: relative;
+    width: 120px;
+    height: 120px;
+}
+
+.circle-bg {
+    fill: none;
+    stroke: #E5E7EB;
+    stroke-width: 10;
+}
+
+.circle-progress-value {
+    fill: none;
+    stroke: #3B82F6;
+    stroke-width: 10;
+    stroke-linecap: round;
+    stroke-dasharray: 339.292;
+    stroke-dashoffset: calc(339.292 - (339.292 * var(--percent)) / 100);
+    transform: rotate(-90deg);
+    transform-origin: center;
+    transition: stroke-dashoffset 0.5s ease;
+}
+
+.circle-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}

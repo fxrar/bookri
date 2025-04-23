@@ -1,0 +1,15 @@
+{
+  "appId": "com.example.app",
+  "appName": "bookri",
+  "webDir": "dist",
+  "plugins": {
+    "Filesystem": {
+      "readPermission": true,
+      "writePermission": true,
+      "androidXStorageEnabled": true
+    },
+    "FilePicker": {
+      "fileTypes": ["application/epub+zip", "application/pdf", "application/x-mobipocket-ebook"]
+    }
+  }
+}

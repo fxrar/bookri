@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookri - Book Reading App</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+      body {
+        font-family: 'Space Grotesk', sans-serif;
+      }
+
+      .nav-item {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: color 0.3s ease;
+      }
+
+      .nav-item.active {
+        color: #3B82F6;
+      }
+
+      .indicator-line {
+        width: 0;
+        height: 3px;
+        border-radius: 999px;
+        background-color: #3B82F6;
+        margin: 4px 0;
+        transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .nav-item.active .indicator-line {
+        width: 20px;
+      }
+
+      .icon-container {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 40px;
+        height: 40px;
+      }
+
+      .icon-background {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(59, 130, 246, 0.1);
+        border-radius: 12px;
+        transform: scale(0);
+        opacity: 0;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+      }
+
+      .nav-item.active .icon-background {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      .nav-text {
+        font-size: 12px;
+        font-weight: 500;
+        margin-top: 2px;
+        opacity: 0.8;
+        transform: translateY(0);
+        transition: transform 0.3s ease, opacity 0.3s ease;
+      }
+
+      .nav-item.active .nav-text {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .progress-bar {
+        height: 6px;
+        border-radius: 3px;
+        background-color: #E5E7EB;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        border-radius: 3px;
+        background-color: #3B82F6;
+      }
+
+      .book-cover {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+
+      /* Animation for the icon bounce */
+      @keyframes iconBounce {
+
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+
+        50% {
+          transform: translateY(-5px);
+        }
+      }
+
+      .nav-item.active i {
+        animation: iconBounce 0.5s ease;
+      }
+
+      .book-card {
+        transition: transform 0.3s ease;
+      }
+
+      .book-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .feature-badge {
+        background-color: #3B82F6;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 h-screen">
+    <!-- Main Content Area -->
+    <div class="h-full pb-20 overflow-auto">
+      <!-- Home Tab Content -->
+      <div id="home-tab" class="px-4 pt-6">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-800">Bookri</h1>
+            <p class="text-gray-600 text-sm">Monday, April 20</p>
+          </div>
+          <div class="flex items-center space-x-3">
+            <button class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+              <i class="fas fa-bell text-gray-500"></i>
+            </button>
+            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center shadow-sm">
+              <span class="text-white font-medium">JD</span>
+            </div>
+          </div>
+        </div>
+        <!-- Reading Assistant Banner -->
+        <div class="bg-blue-500 rounded-xl p-4 mb-6 text-white relative overflow-hidden">
+          <div class="absolute right-0 bottom-0 opacity-10">
+            <i class="fas fa-book-reader text-8xl"></i>
+          </div>
+          <h2 class="font-bold text-lg mb-1">Smart Reading Assistant</h2>
+          <p class="text-sm opacity-90 mb-3">Get summaries, explanations, and insights as you read.</p>
+          <button class="bg-white text-blue-600 text-sm py-1.5 px-4 rounded-lg font-medium"> Try Now </button>
+        </div>
+        <!-- Daily Goal Section -->
+        <div class="bg-white rounded-xl p-4 mb-6 shadow-sm">
+          <div class="flex justify-between items-center mb-3">
+            <h2 class="font-semibold text-gray-800">Daily Goal</h2>
+            <span class="text-blue-500 text-sm font-medium">30 min / day</span>
+          </div>
+          <div class="progress-bar mb-2">
+            <div class="progress-fill" style="width: 65%;"></div>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">19 minutes today</span>
+            <span class="text-gray-600">11 minutes left</span>
+          </div>
+          <div class="mt-3 flex justify-between items-center">
+            <div class="flex items-center">
+              <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-2">
+                <i class="fas fa-fire text-blue-500"></i>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">Current streak</p>
+                <p class="font-semibold text-gray-800">7 days</p>
+              </div>
+            </div>
+            <button class="text-blue-500 text-sm font-medium"> Adjust Goal <i class="fas fa-chevron-right text-xs ml-1"></i>
+            </button>
+          </div>
+        </div>
+        <!-- Continue Reading Section -->
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="font-semibold text-gray-800">Continue Reading</h2>
+          <a href="#" class="text-blue-500 text-sm">See all</a>
+        </div>
+        <div class="bg-white rounded-xl p-4 mb-6 shadow-sm">
+          <div class="flex space-x-4">
+            <div class="book-cover flex-shrink-0 w-20">
+              <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Atomic Habits" class="w-full h-28 object-cover">
+            </div>
+            <div class="flex-1">
+              <div class="flex justify-between items-start">
+                <h3 class="font-medium text-gray-800">Atomic Habits</h3>
+                <span class="feature-badge text-xs text-white px-2 py-0.5 rounded-full">Featured</span>
+              </div>
+              <p class="text-gray-500 text-sm mb-2">James Clear</p>
+              <div class="progress-bar mb-1">
+                <div class="progress-fill" style="width: 45%;"></div>
+              </div>
+              <div class="flex justify-between text-xs text-gray-500 mb-3">
+                <span>Page 78 of 174</span>
+                <span>45% completed</span>
+              </div>
+              <div class="flex space-x-2">
+                <button class="bg-blue-500 text-white text-sm py-1.5 px-4 rounded-lg flex-1 flex items-center justify-center">
+                  <i class="fas fa-book-open mr-2"></i> Continue </button>
+                <button class="bg-gray-100 text-gray-600 text-sm py-1.5 px-3 rounded-lg">
+                  <i class="fas fa-bookmark"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3 pt-3 border-t border-gray-100">
+            <p class="text-xs text-gray-500">Last read: Today at 10:23 AM</p>
+          </div>
+        </div>
+        <!-- Recently Added Section -->
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="font-semibold text-gray-800">Recently Added</h2>
+          <a href="#" class="text-blue-500 text-sm">See all</a>
+        </div>
+        <div class="flex space-x-4 overflow-x-auto pb-2 mb-6">
+          <!-- Book 1 -->
+          <div class="book-card flex-shrink-0 w-32">
+            <div class="book-cover mb-2">
+              <img src="https://images.unsplash.com/photo-1589998059171-988d887df646?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Book cover" class="w-full h-44 object-cover">
+            </div>
+            <h3 class="font-medium text-gray-800 text-sm">The Psychology of Money</h3>
+            <p class="text-gray-500 text-xs">Morgan Housel</p>
+          </div>
+          <!-- Book 2 -->
+          <div class="book-card flex-shrink-0 w-32">
+            <div class="book-cover mb-2">
+              <img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Book cover" class="w-full h-44 object-cover">
+            </div>
+            <h3 class="font-medium text-gray-800 text-sm">Deep Work</h3>
+            <p class="text-gray-500 text-xs">Cal Newport</p>
+          </div>
+          <!-- Book 3 -->
+          <div class="book-card flex-shrink-0 w-32">
+            <div class="book-cover mb-2">
+              <img src="https://images.unsplash.com/photo-1531928351158-2f736078e0a1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Book cover" class="w-full h-44 object-cover">
+            </div>
+            <h3 class="font-medium text-gray-800 text-sm">Thinking, Fast and Slow</h3>
+            <p class="text-gray-500 text-xs">Daniel Kahneman</p>
+          </div>
+          <!-- Book 4 -->
+          <div class="book-card flex-shrink-0 w-32">
+            <div class="book-cover mb-2">
+              <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Book cover" class="w-full h-44 object-cover">
+            </div>
+            <h3 class="font-medium text-gray-800 text-sm">Sapiens</h3>
+            <p class="text-gray-500 text-xs">Yuval Noah Harari</p>
+          </div>
+        </div>
+        <!-- Recommended for You -->
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="font-semibold text-gray-800">Recommended for You</h2>
+          <a href="#" class="text-blue-500 text-sm">More</a>
+        </div>
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <!-- Book 1 -->
+          <div class="bg-white rounded-xl p-3 shadow-sm">
+            <div class="book-cover mb-2">
+              <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Book cover" class="w-full h-32 object-cover">
+            </div>
+            <div class="flex justify-between items-start">
+              <h3 class="font-medium text-gray-800 text-sm">The Almanack of Naval Ravikant</h3>
+              <span class="feature-badge text-xs text-white px-1.5 py-0.5 rounded-full">New</span>
+            </div>
+            <p class="text-gray-500 text-xs">Eric Jorgenson</p>
+            <div class="mt-2 flex">
+              <div class="flex text-yellow-400 text-xs">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star-half-alt"></i>
+              </div>
+              <span class="text-xs text-gray-500 ml-1">4.5</span>
+            </div>
+          </div>
+          <!-- Book 2 -->
+          <div class="bg-white rounded-xl p-3 shadow-sm">
+            <div class="book-cover mb-2">
+              <img src="https://images.unsplash.com/photo-1535398089889-dd807df1dfaa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Book cover" class="w-full h-32 object-cover">
+            </div>
+            <div class="flex justify-between items-start">
+              <h3 class="font-medium text-gray-800 text-sm">Ego Is the Enemy</h3>
+              <span class="feature-badge text-xs text-white px-1.5 py-0.5 rounded-full">Top</span>
+            </div>
+            <p class="text-gray-500 text-xs">Ryan Holiday</p>
+            <div class="mt-2 flex">
+              <div class="flex text-yellow-400 text-xs">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="far fa-star"></i>
+              </div>
+              <span class="text-xs text-gray-500 ml-1">4.0</span>
+            </div>
+          </div>
+        </div>
+        <!-- Weekly Stats Section -->
+        <h2 class="font-semibold text-gray-800 mb-4">Weekly Stats</h2>
+        <div class="bg-white rounded-xl p-4 mb-6 shadow-sm">
+          <div class="flex justify-between mb-4">
+            <div class="text-center">
+              <p class="text-sm text-gray-500">Reading time</p>
+              <p class="font-semibold text-gray-800">3h 45m</p>
+            </div>
+            <div class="text-center">
+              <p class="text-sm text-gray-500">Books</p>
+              <p class="font-semibold text-gray-800">2</p>
+            </div>
+            <div class="text-center">
+              <p class="text-sm text-gray-500">Pages</p>
+              <p class="font-semibold text-gray-800">187</p>
+            </div>
+          </div>
+          <!-- Simple bar chart for reading days -->
+          <div class="flex items-end justify-between h-20 mt-4">
+            <div class="flex flex-col items-center">
+              <div class="bg-blue-500 w-6 rounded-t" style="height: 30%;"></div>
+              <span class="text-xs text-gray-500 mt-1">M</span>
+            </div>
+            <div class="flex flex-col items-center">
+              <div class="bg-blue-500 w-6 rounded-t" style="height: 60%;"></div>
+              <span class="text-xs text-gray-500 mt-1">T</span>
+            </div>
+            <div class="flex flex-col items-center">
+              <div class="bg-blue-500 w-6 rounded-t" style="height: 40%;"></div>
+              <span class="text-xs text-gray-500 mt-1">W</span>
+            </div>
+            <div class="flex flex-col items-center">
+              <div class="bg-blue-500 w-6 rounded-t" style="height: 80%;"></div>
+              <span class="text-xs text-gray-500 mt-1">T</span>
+            </div>
+            <div class="flex flex-col items-center">
+              <div class="bg-blue-500 w-6 rounded-t" style="height: 50%;"></div>
+              <span class="text-xs text-gray-500 mt-1">F</span>
+            </div>
+            <div class="flex flex-col items-center">
+              <div class="bg-blue-500 w-6 rounded-t" style="height: 90%;"></div>
+              <span class="text-xs text-gray-500 mt-1">S</span>
+            </div>
+            <div class="flex flex-col items-center">
+              <div class="bg-blue-500 w-6 rounded-t" style="height: 20%;"></div>
+              <span class="text-xs text-gray-500 mt-1">S</span>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center">
+            <p class="text-sm text-gray-600">Your best day was Saturday</p>
+            <a href="#" class="text-blue-500 text-sm font-medium">View Details</a>
+          </div>
+        </div>
+        <!-- Reading Tips -->
+        <div class="bg-gray-100 rounded-xl p-4 mb-6">
+          <div class="flex items-start">
+            <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center mr-3 mt-1">
+              <i class="fas fa-lightbulb text-yellow-500"></i>
+            </div>
+            <div>
+              <h3 class="font-medium text-gray-800 mb-1">Reading Tip</h3>
+              <p class="text-sm text-gray-600">Try the Pomodoro technique: read for 25 minutes, then take a 5-minute break to boost retention.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 w-full bg-white border-t border-gray-200 shadow-lg">
+      <div class="flex justify-around py-3">
+        <a href="#" class="nav-item active text-gray-500" data-tab="home-tab">
+          <div class="icon-container">
+            <div class="icon-background"></div>
+            <i class="fas fa-home text-xl"></i>
+          </div>
+          <div class="indicator-line"></div>
+          <span class="nav-text">Home</span>
+        </a>
+        <a href="#" class="nav-item text-gray-500" data-tab="books-tab">
+          <div class="icon-container">
+            <div class="icon-background"></div>
+            <i class="fas fa-book text-xl"></i>
+          </div>
+          <div class="indicator-line"></div>
+          <span class="nav-text">Books</span>
+        </a>
+        <a href="#" class="nav-item text-gray-500" data-tab="goal-tab">
+          <div class="icon-container">
+            <div class="icon-background"></div>
+            <i class="fas fa-bullseye text-xl"></i>
+          </div>
+          <div class="indicator-line"></div>
+          <span class="nav-text">Goal</span>
+        </a>
+        <a href="#" class="nav-item text-gray-500" data-tab="profile-tab">
+          <div class="icon-container">
+            <div class="icon-background"></div>
+            <i class="fas fa-chart-line text-xl"></i>
+          </div>
+          <div class="indicator-line"></div>
+          <span class="nav-text">Profile</span>
+        </a>
+        <a href="#" class="nav-item text-gray-500" data-tab="read-tab">
+          <div class="icon-container">
+            <div class="icon-background"></div>
+            <i class="fas fa-book-reader text-xl"></i>
+          </div>
+          <div class="indicator-line"></div>
+          <span class="nav-text">Read</span>
+        </a>
+      </div>
+    </nav>
+    <script>
+      // JavaScript to handle tab switching
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (item.classList.contains('active')) return;
+          // Remove active class from all items
+          navItems.forEach(navItem => {
+            navItem.classList.remove('active');
+          });
+          // Add active class to clicked item
+          item.classList.add('active');
+        });
+      });
+    </script>
+  </body>
+</html>

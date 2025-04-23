@@ -1,0 +1,140 @@
+/* Reader styles */
+.reader-content {
+    font-family: 'Georgia', serif;
+    line-height: 1.7;
+  }
+  
+  .reader-content p {
+    margin-bottom: 1.5em;
+  }
+  
+  .tool-button {
+    transition: all 0.2s ease;
+  }
+  
+  .tool-button:hover {
+    background-color: #EFF6FF;
+  }
+  
+  .tool-button.active {
+    background-color: #3B82F6;
+    color: white;
+  }
+  
+  .settings-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    z-index: 50;
+  }
+  
+  .settings-panel.open {
+    transform: translateY(0);
+  }
+  
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+    z-index: 40;
+  }
+  
+  .overlay.open {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .progress-bar {
+    height: 4px;
+    background-color: #E5E7EB;
+    overflow: hidden;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    background-color: #3B82F6;
+  }
+  
+  /* Font size controls */
+  .font-size-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .font-size-btn {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #F3F4F6;
+    border: none;
+    cursor: pointer;
+  }
+  
+  /* Theme toggle */
+  .theme-toggle {
+    position: relative;
+    width: 48px;
+    height: 24px;
+    border-radius: 12px;
+    background-color: #E5E7EB;
+    cursor: pointer;
+  }
+  
+  .theme-toggle-circle {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: white;
+    transition: transform 0.3s ease;
+  }
+  
+  .theme-toggle.dark .theme-toggle-circle {
+    transform: translateX(24px);
+  }
+  
+  .theme-toggle.dark {
+    background-color: #4B5563;
+  }
+  
+  /* Dark mode */
+  body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+  }
+  
+  body.dark-mode .bg-white {
+    background-color: #1e1e1e;
+  }
+  
+  body.dark-mode .text-gray-800 {
+    color: #e0e0e0;
+  }
+  
+  body.dark-mode .text-gray-600 {
+    color: #a0a0a0;
+  }
+  
+  body.dark-mode .border-gray-200 {
+    border-color: #333;
+  }
+  
+  body.dark-mode .progress-bar {
+    background-color: #333;
+  }
+  

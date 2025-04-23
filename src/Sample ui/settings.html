@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookri - Book Reading App</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        
+        .nav-item {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-item.active {
+            color: #3B82F6;
+        }
+        
+        .indicator-line {
+            width: 0;
+            height: 3px;
+            border-radius: 999px;
+            background-color: #3B82F6;
+            margin: 4px 0;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .nav-item.active .indicator-line {
+            width: 20px;
+        }
+        
+        .icon-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+        }
+        
+        .icon-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(59, 130, 246, 0.1);
+            border-radius: 12px;
+            transform: scale(0);
+            opacity: 0;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+        }
+        
+        .nav-item.active .icon-background {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        .nav-text {
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 2px;
+            opacity: 0.8;
+            transform: translateY(0);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        
+        .nav-item.active .nav-text {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Toggle switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #E5E7EB;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #3B82F6;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+        
+        /* Radio buttons for theme */
+        .theme-radio {
+            display: none;
+        }
+        
+        .theme-option {
+            display: inline-block;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-right: 10px;
+            position: relative;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .theme-radio:checked + .theme-option {
+            border-color: #3B82F6;
+        }
+        
+        .theme-option::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #3B82F6;
+            transition: transform 0.2s ease;
+        }
+        
+        .theme-radio:checked + .theme-option::after {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        /* Font options */
+        .font-radio {
+            display: none;
+        }
+        
+        .font-option {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-right: 8px;
+            border: 1px solid #E5E7EB;
+            transition: all 0.2s ease;
+        }
+        
+        .font-radio:checked + .font-option {
+            border-color: #3B82F6;
+            background-color: #EFF6FF;
+            color: #3B82F6;
+        }
+        
+        /* Settings section */
+        .settings-section {
+            border-bottom: 1px solid #E5E7EB;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .settings-section:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen">
+    <!-- Main Content Area -->
+    <div class="h-full pb-20 overflow-auto">
+        <!-- Settings Content -->
+        <div id="settings-page" class="px-4 pt-6">
+            <!-- Header -->
+            <div class="flex items-center mb-6">
+                <button class="p-2 mr-3" id="back-button">
+                    <i class="fas fa-arrow-left text-gray-600"></i>
+                </button>
+                <h1 class="text-2xl font-bold text-gray-800">Settings</h1>
+            </div>
+            
+            <!-- Account Settings -->
+            <div class="bg-white rounded-xl p-4 mb-6">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                        <span class="text-white font-bold">JD</span>
+                    </div>
+                    <div>
+                        <h2 class="font-semibold text-gray-800">John Doe</h2>
+                        <p class="text-gray-600 text-sm">john.doe@example.com</p>
+                    </div>
+                    <button class="ml-auto text-blue-500 text-sm font-medium">
+                        Edit Profile
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-user text-blue-500 text-sm"></i>
+                            </div>
+                            <span class="text-gray-700">Account Information</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-bell text-blue-500 text-sm"></i>
+                            </div>
+                            <span class="text-gray-700">Notifications</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-lock text-blue-500 text-sm"></i>
+                            </div>
+                            <span class="text-gray-700">Privacy & Security</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- App Preferences -->
+            <h2 class="font-semibold text-gray-800 mb-3">App Preferences</h2>
+            <div class="bg-white rounded-xl p-4 mb-6">
+                <!-- Reading Preferences -->
+                <div class="settings-section">
+                    <h3 class="font-medium text-gray-800 mb-3">Reading Preferences</h3>
+                    
+                    <!-- Default Font -->
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600 mb-2">Default Font</p>
+                        <div class="flex flex-wrap">
+                            <input type="radio" id="font-georgia" name="default-font" class="font-radio" checked>
+                            <label for="font-georgia" class="font-option" style="font-family: Georgia, serif;">Georgia</label>
+                            
+                            <input type="radio" id="font-roboto" name="default-font" class="font-radio">
+                            <label for="font-roboto" class="font-option" style="font-family: 'Space Grotesk', sans-serif;">Roboto</label>
+                            
+                            <input type="radio" id="font-open-sans" name="default-font" class="font-radio">
+                            <label for="font-open-sans" class="font-option" style="font-family: Arial, sans-serif;">Open Sans</label>
+                            
+                            <input type="radio" id="font-dyslexic" name="default-font" class="font-radio">
+                            <label for="font-dyslexic" class="font-option" style="font-family: monospace;">Dyslexic</label>
+                        </div>
+                    </div>
+                    
+                    <!-- Default Font Size -->
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <p class="text-sm text-gray-600">Default Font Size</p>
+                            <span class="text-sm text-gray-800">16px</span>
+                        </div>
+                        <input type="range" min="12" max="24" value="16" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>Small</span>
+                            <span>Medium</span>
+                            <span>Large</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Default Theme -->
+                    <div>
+                        <p class="text-sm text-gray-600 mb-2">Default Theme</p>
+                        <div class="flex">
+                            <input type="radio" id="theme-light" name="default-theme" class="theme-radio" checked>
+                            <label for="theme-light" class="theme-option bg-white border border-gray-200"></label>
+                            
+                            <input type="radio" id="theme-sepia" name="default-theme" class="theme-radio">
+                            <label for="theme-sepia" class="theme-option bg-yellow-50 border border-gray-200"></label>
+                            
+                            <input type="radio" id="theme-gray" name="default-theme" class="theme-radio">
+                            <label for="theme-gray" class="theme-option bg-gray-100 border border-gray-200"></label>
+                            
+                            <input type="radio" id="theme-dark" name="default-theme" class="theme-radio">
+                            <label for="theme-dark" class="theme-option bg-gray-800 border border-gray-700"></label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Display Settings -->
+                <div class="settings-section">
+                    <h3 class="font-medium text-gray-800 mb-3">Display Settings</h3>
+                    
+                    <div class="space-y-4">
+                        <!-- Dark Mode -->
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                                    <i class="fas fa-moon text-gray-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="text-gray-700">Dark Mode</p>
+                                    <p class="text-xs text-gray-500">Apply dark theme to the app</p>
+                                </div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        
+                        <!-- Follow System Theme -->
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                                    <i class="fas fa-sync text-gray-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="text-gray-700">Follow System Theme</p>
+                                    <p class="text-xs text-gray-500">Match device theme settings</p>
+                                </div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Notification Settings -->
+                <div class="settings-section">
+                    <h3 class="font-medium text-gray-800 mb-3">Notification Settings</h3>
+                    
+                    <div class="space-y-4">
+                        <!-- Reading Reminders -->
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                    <i class="fas fa-bell text-blue-500 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="text-gray-700">Reading Reminders</p>
+                                    <p class="text-xs text-gray-500">Daily reminders to meet your goal</p>
+                                </div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        
+                        <!-- Achievement Notifications -->
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                    <i class="fas fa-trophy text-blue-500 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="text-gray-700">Achievement Notifications</p>
+                                    <p class="text-xs text-gray-500">Get notified about new achievements</p>
+                                </div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        
+                        <!-- Weekly Summary -->
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                    <i class="fas fa-chart-bar text-blue-500 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="text-gray-700">Weekly Summary</p>
+                                    <p class="text-xs text-gray-500">Receive a weekly reading summary</p>
+                                </div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Storage & Data -->
+                <div class="settings-section">
+                    <h3 class="font-medium text-gray-800 mb-3">Storage & Data</h3>
+                    
+                    <div class="space-y-4">
+                        <!-- Download over WiFi only -->
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                    <i class="fas fa-wifi text-green-500 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="text-gray-700">Download over WiFi only</p>
+                                    <p class="text-xs text-gray-500">Save mobile data usage</p>
+                                </div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        
+                        <!-- Storage Usage -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                                    <i class="fas fa-database text-purple-500 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="text-gray-700">Storage Usage</p>
+                                    <p class="text-xs text-gray-500">Manage app storage</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-medium text-gray-700">245 MB</p>
+                                <p class="text-xs text-gray-500">24 books</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Clear Cache -->
+                        <button class="flex items-center w-full">
+                            <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-trash-alt text-red-500 text-sm"></i>
+                            </div>
+                            <span class="text-red-500">Clear Cache</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- About & Support -->
+            <h2 class="font-semibold text-gray-800 mb-3">About & Support</h2>
+            <div class="bg-white rounded-xl p-4 mb-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-info-circle text-gray-600 text-sm"></i>
+                            </div>
+                            <span class="text-gray-700">About Bookri</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-question-circle text-gray-600 text-sm"></i>
+                            </div>
+                            <span class="text-gray-700">Help & Support</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-star text-gray-600 text-sm"></i>
+                            </div>
+                            <span class="text-gray-700">Rate the App</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-share-alt text-gray-600 text-sm"></i>
+                            </div>
+                            <span class="text-gray-700">Share with Friends</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                    </div>
+                </div>
+                
+                <div class="mt-6 pt-4 border-t border-gray-100 text-center">
+                    <p class="text-gray-500 text-sm">Version 1.0.3</p>
+                    <p class="text-gray-400 text-xs mt-1">© 2025 Bookri. All rights reserved.</p>
+                </div>
+            </div>
+            
+            <!-- Sign Out Button -->
+            <button class="w-full bg-red-50 text-red-500 font-medium py-3 rounded-xl mb-8">
+                Sign Out
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('back-button').addEventListener('click', () => {
+            // Go back to previous page (in a real app, this would navigate back)
+            alert('Navigate back to the Profile page');
+        });
+    </script>
+</body>
+</html>

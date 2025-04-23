@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookri - Book Reading App</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        
+        .nav-item {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-item.active {
+            color: #3B82F6;
+        }
+        
+        .indicator-line {
+            width: 0;
+            height: 3px;
+            border-radius: 999px;
+            background-color: #3B82F6;
+            margin: 4px 0;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .nav-item.active .indicator-line {
+            width: 20px;
+        }
+        
+        .icon-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+        }
+        
+        .icon-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(59, 130, 246, 0.1);
+            border-radius: 12px;
+            transform: scale(0);
+            opacity: 0;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+        }
+        
+        .nav-item.active .icon-background {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        .nav-text {
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 2px;
+            opacity: 0.8;
+            transform: translateY(0);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        
+        .nav-item.active .nav-text {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .progress-bar {
+            height: 6px;
+            border-radius: 3px;
+            background-color: #E5E7EB;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            background-color: #3B82F6;
+        }
+        
+        .book-cover {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        /* Animation for the icon bounce */
+        @keyframes iconBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .nav-item.active i {
+            animation: iconBounce 0.5s ease;
+        }
+        
+        .book-card {
+            transition: transform 0.2s ease;
+        }
+        
+        .book-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .feature-badge {
+            background-color: #3B82F6;
+        }
+        
+        .tab-button {
+            transition: all 0.2s ease;
+        }
+        
+        .tab-button.active {
+            background-color: #3B82F6;
+            color: white;
+        }
+        
+        .tab-button:hover:not(.active) {
+            background-color: #EFF6FF;
+        }
+        
+        .search-container {
+            position: relative;
+        }
+        
+        .search-container i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9CA3AF;
+        }
+        
+        .search-input {
+            padding-left: 35px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen">
+    <!-- Main Content Area -->
+    <div class="h-full pb-20 overflow-auto">
+        <!-- Books Tab Content -->
+        <div id="books-tab" class="px-4 pt-6">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">My Library</h1>
+                    <p class="text-gray-600 text-sm">Monday, April 20</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                        <i class="fas fa-plus text-gray-500"></i>
+                    </button>
+                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                        <span class="text-white font-medium">JD</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="mb-6">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="search-input w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm" placeholder="Search books, authors, or genres...">
+                </div>
+            </div>
+            
+            <!-- Library Tabs -->
+            <div class="flex space-x-2 mb-6 overflow-x-auto py-1">
+                <button class="tab-button active whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium">
+                    All Books (24)
+                </button>
+                <button class="tab-button whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium text-gray-600 bg-white">
+                    Currently Reading (3)
+                </button>
+                <button class="tab-button whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium text-gray-600 bg-white">
+                    Completed (12)
+                </button>
+                <button class="tab-button whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium text-gray-600 bg-white">
+                    Bookmarked (7)
+                </button>
+            </div>
+            
+            <!-- Sort and View Options -->
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center">
+                    <span class="text-sm text-gray-600 mr-2">Sort by:</span>
+                    <select class="bg-white border border-gray-200 rounded-lg px-2 py-1 text-sm text-gray-600">
+                        <option>Recently Added</option>
+                        <option>Title (A-Z)</option>
+                        <option>Author (A-Z)</option>
+                        <option>Progress</option>
+                    </select>
+                </div>
+                <div class="flex space-x-2">
+                    <button class="bg-white border border-gray-200 rounded-lg p-1.5">
+                        <i class="fas fa-th-large text-blue-500"></i>
+                    </button>
+                    <button class="bg-white border border-gray-200 rounded-lg p-1.5">
+                        <i class="fas fa-list text-gray-400"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Book Grid -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <!-- Book 1 -->
+                <div class="book-card bg-white rounded-xl p-3">
+                    <div class="book-cover mb-2 relative">
+                        <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                             alt="Book cover" class="w-full h-40 object-cover">
+                        <div class="absolute top-2 right-2">
+                            <button class="bg-white bg-opacity-80 p-1.5 rounded-full">
+                                <i class="fas fa-bookmark text-blue-500 text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <h3 class="font-medium text-gray-800 text-sm">Atomic Habits</h3>
+                        <span class="feature-badge text-xs text-white px-1.5 py-0.5 rounded-full">Reading</span>
+                    </div>
+                    <p class="text-gray-500 text-xs mb-2">James Clear</p>
+                    <div class="progress-bar mb-1">
+                        <div class="progress-fill" style="width: 45%;"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500">
+                        <span>45% completed</span>
+                        <span>78/174</span>
+                    </div>
+                </div>
+                
+                <!-- Book 2 -->
+                <div class="book-card bg-white rounded-xl p-3">
+                    <div class="book-cover mb-2 relative">
+                        <img src="https://images.unsplash.com/photo-1589998059171-988d887df646?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                             alt="Book cover" class="w-full h-40 object-cover">
+                        <div class="absolute top-2 right-2">
+                            <button class="bg-white bg-opacity-80 p-1.5 rounded-full">
+                                <i class="far fa-bookmark text-gray-500 text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <h3 class="font-medium text-gray-800 text-sm">The Psychology of Money</h3>
+                        <span class="feature-badge text-xs text-white px-1.5 py-0.5 rounded-full">Reading</span>
+                    </div>
+                    <p class="text-gray-500 text-xs mb-2">Morgan Housel</p>
+                    <div class="progress-bar mb-1">
+                        <div class="progress-fill" style="width: 75%;"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500">
+                        <span>75% completed</span>
+                        <span>180/240</span>
+                    </div>
+                </div>
+                
+                <!-- Book 3 -->
+                <div class="book-card bg-white rounded-xl p-3">
+                    <div class="book-cover mb-2 relative">
+                        <img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                             alt="Book cover" class="w-full h-40 object-cover">
+                        <div class="absolute top-2 right-2">
+                            <button class="bg-white bg-opacity-80 p-1.5 rounded-full">
+                                <i class="fas fa-bookmark text-blue-500 text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <h3 class="font-medium text-gray-800 text-sm">Deep Work</h3>
+                        <span class="feature-badge text-xs text-white px-1.5 py-0.5 rounded-full">Reading</span>
+                    </div>
+                    <p class="text-gray-500 text-xs mb-2">Cal Newport</p>
+                    <div class="progress-bar mb-1">
+                        <div class="progress-fill" style="width: 30%;"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500">
+                        <span>30% completed</span>
+                        <span>67/223</span>
+                    </div>
+                </div>
+                
+                <!-- Book 4 -->
+                <div class="book-card bg-white rounded-xl p-3">
+                    <div class="book-cover mb-2 relative">
+                        <img src="https://images.unsplash.com/photo-1531928351158-2f736078e0a1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                             alt="Book cover" class="w-full h-40 object-cover">
+                        <div class="absolute top-2 right-2">
+                            <button class="bg-white bg-opacity-80 p-1.5 rounded-full">
+                                <i class="far fa-bookmark text-gray-500 text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="font-medium text-gray-800 text-sm">Thinking, Fast and Slow</h3>
+                    <p class="text-gray-500 text-xs mb-2">Daniel Kahneman</p>
+                    <div class="progress-bar mb-1">
+                        <div class="progress-fill" style="width: 100%;"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500">
+                        <span>Completed</span>
+                        <span>499/499</span>
+                    </div>
+                </div>
+                
+                <!-- Book 5 -->
+                <div class="book-card bg-white rounded-xl p-3">
+                    <div class="book-cover mb-2 relative">
+                        <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                             alt="Book cover" class="w-full h-40 object-cover">
+                        <div class="absolute top-2 right-2">
+                            <button class="bg-white bg-opacity-80 p-1.5 rounded-full">
+                                <i class="fas fa-bookmark text-blue-500 text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="font-medium text-gray-800 text-sm">Sapiens</h3>
+                    <p class="text-gray-500 text-xs mb-2">Yuval Noah Harari</p>
+                    <div class="progress-bar mb-1">
+                        <div class="progress-fill" style="width: 90%;"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500">
+                        <span>90% completed</span>
+                        <span>412/456</span>
+                    </div>
+                </div>
+                
+                <!-- Book 6 -->
+                <div class="book-card bg-white rounded-xl p-3">
+                    <div class="book-cover mb-2 relative">
+                        <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                             alt="Book cover" class="w-full h-40 object-cover">
+                        <div class="absolute top-2 right-2">
+                            <button class="bg-white bg-opacity-80 p-1.5 rounded-full">
+                                <i class="far fa-bookmark text-gray-500 text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="font-medium text-gray-800 text-sm">The Almanack of Naval Ravikant</h3>
+                    <p class="text-gray-500 text-xs mb-2">Eric Jorgenson</p>
+                    <div class="progress-bar mb-1">
+                        <div class="progress-fill" style="width: 100%;"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500">
+                        <span>Completed</span>
+                        <span>242/242</span>
+                    </div>
+                </div>
+                
+                <!-- Book 7 -->
+                <div class="book-card bg-white rounded-xl p-3">
+                    <div class="book-cover mb-2 relative">
+                        <img src="https://images.unsplash.com/photo-1535398089889-dd807df1dfaa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                             alt="Book cover" class="w-full h-40 object-cover">
+                        <div class="absolute top-2 right-2">
+                            <button class="bg-white bg-opacity-80 p-1.5 rounded-full">
+                                <i class="fas fa-bookmark text-blue-500 text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="font-medium text-gray-800 text-sm">Ego Is the Enemy</h3>
+                    <p class="text-gray-500 text-xs mb-2">Ryan Holiday</p>
+                    <div class="progress-bar mb-1">
+                        <div class="progress-fill" style="width: 100%;"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500">
+                        <span>Completed</span>
+                        <span>194/194</span>
+                    </div>
+                </div>
+                
+                <!-- Book 8 -->
+                <div class="book-card bg-white rounded-xl p-3">
+                    <div class="book-cover mb-2 relative">
+                        <img src="https://images.unsplash.com/photo-1532012197267-da84d127e765?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                             alt="Book cover" class="w-full h-40 object-cover">
+                        <div class="absolute top-2 right-2">
+                            <button class="bg-white bg-opacity-80 p-1.5 rounded-full">
+                                <i class="far fa-bookmark text-gray-500 text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="font-medium text-gray-800 text-sm">The Four Agreements</h3>
+                    <p class="text-gray-500 text-xs mb-2">Don Miguel Ruiz</p>
+                    <div class="progress-bar mb-1">
+                        <div class="progress-fill" style="width: 0%;"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500">
+                        <span>Not started</span>
+                        <span>0/160</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Load More Button -->
+            <div class="flex justify-center mb-6">
+                <button class="bg-white border border-gray-200 text-gray-600 text-sm py-2 px-4 rounded-lg">
+                    Load More Books
+                </button>
+            </div>
+            
+            <!-- Reading Statistics -->
+            <div class="bg-white rounded-xl p-4 mb-6">
+                <h2 class="font-semibold text-gray-800 mb-3">Library Statistics</h2>
+                
+                <div class="grid grid-cols-3 gap-2 mb-4">
+                    <div class="text-center">
+                        <p class="text-sm text-gray-500">Total Books</p>
+                        <p class="font-semibold text-gray-800 text-xl">24</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-500">Completed</p>
+                        <p class="font-semibold text-gray-800 text-xl">12</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-500">In Progress</p>
+                        <p class="font-semibold text-gray-800 text-xl">3</p>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between items-center pt-3 border-t border-gray-100">
+                    <p class="text-sm text-gray-600">Total Pages Read</p>
+                    <p class="font-medium text-gray-800">3,451</p>
+                </div>
+            </div>
+            
+            <!-- Collections Section -->
+            <h2 class="font-semibold text-gray-800 mb-3">My Collections</h2>
+            <div class="flex space-x-3 overflow-x-auto pb-4 mb-6">
+                <!-- Collection 1 -->
+                <div class="flex-shrink-0 w-40 bg-white rounded-xl p-3">
+                    <div class="h-20 bg-blue-100 rounded-lg flex items-center justify-center mb-2">
+                        <i class="fas fa-brain text-blue-500 text-2xl"></i>
+                    </div>
+                    <h3 class="font-medium text-gray-800 text-sm">Self Improvement</h3>
+                    <p class="text-gray-500 text-xs">8 books</p>
+                </div>
+                
+                <!-- Collection 2 -->
+                <div class="flex-shrink-0 w-40 bg-white rounded-xl p-3">
+                    <div class="h-20 bg-purple-100 rounded-lg flex items-center justify-center mb-2">
+                        <i class="fas fa-lightbulb text-purple-500 text-2xl"></i>
+                    </div>
+                    <h3 class="font-medium text-gray-800 text-sm">Philosophy</h3>
+                    <p class="text-gray-500 text-xs">5 books</p>
+                </div>
+                
+                <!-- Collection 3 -->
+                <div class="flex-shrink-0 w-40 bg-white rounded-xl p-3">
+                    <div class="h-20 bg-green-100 rounded-lg flex items-center justify-center mb-2">
+                        <i class="fas fa-chart-line text-green-500 text-2xl"></i>
+                    </div>
+                    <h3 class="font-medium text-gray-800 text-sm">Business</h3>
+                    <p class="text-gray-500 text-xs">6 books</p>
+                </div>
+                
+                <!-- Collection 4 -->
+                <div class="flex-shrink-0 w-40 bg-white rounded-xl p-3">
+                    <div class="h-20 bg-yellow-100 rounded-lg flex items-center justify-center mb-2">
+                        <i class="fas fa-history text-yellow-500 text-2xl"></i>
+                    </div>
+                    <h3 class="font-medium text-gray-800 text-sm">History</h3>
+                    <p class="text-gray-500 text-xs">4 books</p>
+                </div>
+                
+                <!-- Add New Collection -->
+                <div class="flex-shrink-0 w-40 bg-gray-50 rounded-xl p-3 border border-dashed border-gray-300 flex flex-col items-center justify-center">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                        <i class="fas fa-plus text-blue-500"></i>
+                    </div>
+                    <p class="text-gray-600 text-sm text-center">Create New Collection</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 w-full bg-white border-t border-gray-200">
+        <div class="flex justify-around py-3">
+            <a href="#" class="nav-item text-gray-500" data-tab="home-tab">
+                <div class="icon-container">
+                    <div class="icon-background"></div>
+                    <i class="fas fa-home text-xl"></i>
+                </div>
+                <div class="indicator-line"></div>
+                <span class="nav-text">Home</span>
+            </a>
+            <a href="#" class="nav-item active text-gray-500" data-tab="books-tab">
+                <div class="icon-container">
+                    <div class="icon-background"></div>
+                    <i class="fas fa-book text-xl"></i>
+                </div>
+                <div class="indicator-line"></div>
+                <span class="nav-text">Books</span>
+            </a>
+            <a href="#" class="nav-item text-gray-500" data-tab="goal-tab">
+                <div class="icon-container">
+                    <div class="icon-background"></div>
+                    <i class="fas fa-bullseye text-xl"></i>
+                </div>
+                <div class="indicator-line"></div>
+                <span class="nav-text">Goal</span>
+            </a>
+            <a href="#" class="nav-item text-gray-500" data-tab="profile-tab">
+                <div class="icon-container">
+                    <div class="icon-background"></div>
+                    <i class="fas fa-chart-line text-xl"></i>
+                </div>
+                <div class="indicator-line"></div>
+                <span class="nav-text">Profile</span>
+            </a>
+            <a href="#" class="nav-item text-gray-500" data-tab="read-tab">
+                <div class="icon-container">
+                    <div class="icon-background"></div>
+                    <i class="fas fa-book-reader text-xl"></i>
+                </div>
+                <div class="indicator-line"></div>
+                <span class="nav-text">Read</span>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        // JavaScript to handle tab switching
+        const navItems = document.querySelectorAll('.nav-item');
+        
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                if (item.classList.contains('active')) return;
+                
+                // Remove active class from all items
+                navItems.forEach(navItem => {
+                    navItem.classList.remove('active');
+                });
+                
+                // Add active class to clicked item
+                item.classList.add('active');
+            });
+        });
+        
+        // Handle library tabs
+        const tabButtons = document.querySelectorAll('.tab-button');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.classList.add('bg-white', 'text-gray-600');
+                });
+                
+                // Add active class to clicked button
+                button.classList.add('active');
+                button.classList.remove('bg-white', 'text-gray-600');
+            });
+        });
+    </script>
+</body>
+</html>
